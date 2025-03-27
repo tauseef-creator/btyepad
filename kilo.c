@@ -15,8 +15,8 @@ void enableRawMode() {
   tcgetattr(STDIN_FILENO, &orig_termios);
   atexit(disableRawMode);
   struct termios raw = orig_termios;
-  raw.c_iflag &= ~(IXON);
-  raw.c_lflag &= ~(ECHO | ICANON | ISIG);
+  raw.c_iflag &= ~(ICRNL | IXON);  //input flags from M, IXON is for ctrl-s and ctrl-q
+  raw.c_lflag &= ~(ECHO | ICANON | IEXTEN | ISIG); //local flag
   tcsetattr(STDIN_FILENO, TCSAFLUSH, &raw);
 }
 
