@@ -8,6 +8,9 @@
 #include <termios.h>
 #include <unistd.h>
 
+/*** defines ***/
+#define CTRL_KEY(k) ((k) & 0x1f)  //ascii value of control key is 0x1f. any key can be converted to control key by ANDing with 0x1f
+
 /*** data ***/
 
 struct termios orig_termios;
@@ -52,7 +55,7 @@ int main() {
     } else {
       printf("%d ('%c')\r\n", c, c);
     }
-    if (c == 'q') break;
+    if (c == CTRL_KEY('q')) break;
   }
 
   return 0;
