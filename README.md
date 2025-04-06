@@ -21,7 +21,7 @@ This project follows the step-by-step approach of the Kilo text editor tutorial 
    
 2. Compile the code:
 ```
-   gcc bytepad.c -o bytepad
+   make
 ```
    
 3. Run it:
