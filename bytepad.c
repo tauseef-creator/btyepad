@@ -19,7 +19,7 @@
 /*** defines ***/
 #define CTRL_KEY(k) ((k) & 0x1f)  //ascii value of control key is 0x1f. any key can be converted to control key by ANDing with 0x1f
 
-#define KILO_VERSION "0.0.1"
+#define BYTEPAD_VERSION "0.0.1"
 
 enum editorKey {
   ARROW_LEFT = 1000,
@@ -237,7 +237,7 @@ void editorDrawRows(struct abuf *ab) {
       if (E.numrows == 0 && y == E.screenrows / 3) {
         char welcome[80];
         int welcomelen = snprintf(welcome, sizeof(welcome),
-          "Kilo editor -- version %s", KILO_VERSION);
+          "Bytepad editor -- version %s", BYTEPAD_VERSION);
         if (welcomelen > E.screencols) welcomelen = E.screencols;
         int padding = (E.screencols - welcomelen) / 2;
         if (padding) {

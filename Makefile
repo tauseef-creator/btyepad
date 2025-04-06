@@ -1,2 +1,2 @@
-kilo: kilo.c
-	$(CC) kilo.c -o kilo -Wall -Wextra -pedantic -std=c99
+bytepad: bytepad.c
+	$(CC) bytepad.c -o bytepad -Wall -Wextra -pedantic -std=c99
