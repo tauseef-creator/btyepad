@@ -286,6 +286,7 @@ void editorRefreshScreen() {
 
 /*** input ***/
 void editorMoveCursor(int key) {
+  erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];  //ternary operator checks if cursor is on an actual row or not (before we allow it to move right)
   switch (key) {
     case ARROW_LEFT:
       if (E.cx != 0) {
@@ -293,7 +294,9 @@ void editorMoveCursor(int key) {
       }
       break;
     case ARROW_RIGHT:
+      if (row && E.cx < row->size) {
         E.cx++;
+      }
       break;
     case ARROW_UP:
       if (E.cy != 0) {
@@ -305,6 +308,14 @@ void editorMoveCursor(int key) {
         E.cy++;
       }
       break;
+  }
+
+  //user is still able to move the cursor past the end of a line, however. They can do it by moving the cursor to the end of a long line, then moving it down to the next line, which is shorter
+  
+  row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];
+  int rowlen = row ? row->size : 0;
+  if (E.cx > rowlen) {
+    E.cx = rowlen;
   }
 }
 
