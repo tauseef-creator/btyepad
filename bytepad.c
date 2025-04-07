@@ -20,6 +20,7 @@
 #define CTRL_KEY(k) ((k) & 0x1f)  //ascii value of control key is 0x1f. any key can be converted to control key by ANDing with 0x1f
 
 #define BYTEPAD_VERSION "0.0.1"
+#define BYTEPAD_TAB_STOP 8
 
 enum editorKey {
   ARROW_LEFT = 1000,
@@ -171,13 +172,13 @@ void editorUpdateRow(erow *row) {  //copy each character from chars to render
     if (row->chars[j] == '\t') tabs++;
 
   free(row->render);
-  row->render = malloc(row->size + tabs*7 + 1);
+  row->render = malloc(row->size + tabs*(BYTEPAD_TAB_STOP - 1) + 1);  //already rsize adds 1 for tab, so we add BYTEPAD_TAB_STOP value for each tab
 
   int idx = 0;
   for (j = 0; j < row->size; j++) {
     if (row->chars[j] == '\t') {
-      row->render[idx++] = ' ';
-      while (idx % 8 != 0) row->render[idx++] = ' ';  //this ensures that the tab is 8 spaces long
+      row->render[idx++] = ' ';  //idx is the position of each character in the render array
+      while (idx % BYTEPAD_TAB_STOP != 0) row->render[idx++] = ' ';  //this ensures that the tab is 8 spaces long.
     } else {
       row->render[idx++] = row->chars[j];
     }
