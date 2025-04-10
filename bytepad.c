@@ -1,4 +1,3 @@
-
 /*** includes ***/
 
 
@@ -63,6 +62,10 @@ struct editorConfig {
 };
 
 struct editorConfig E;
+
+
+/*** prototypes ***/
+void editorSetStatusMessage(const char *fmt, ...);
 
 /*** terminal ***/
 
@@ -287,10 +290,19 @@ void editorSave() {
   int len;
   char *buf = editorRowsToString(&len);
   int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
-  ftruncate(fd, len);  //sets the file's size to the specified length. If the file is larger than that, it will cut off any data at the end of the file to make it that length. If the file is shorter, it will add 0 bytes at the end to make it that length.
-  write(fd, buf, len);
-  close(fd);
+  if (fd != -1) {
+    if (ftruncate(fd, len) != -1) {   //sets the file's size to the specified length. If the file is larger than that, it will cut off any data at the end of the file to make it that length. If the file is shorter, it will add 0 bytes at the end to make it that length.
+      if (write(fd, buf, len) == len) {
+        close(fd);
+        free(buf);
+        editorSetStatusMessage("%d bytes written to disk", len);
+        return;
+      }
+    }
+    close(fd);
+  }
   free(buf);
+  editorSetStatusMessage("Can't save! I/O error: %s", strerror(errno));
 }
 
 /*** append buffer ***/
@@ -420,7 +432,9 @@ void editorRefreshScreen() {
   abFree(&ab);
 }
 
-void editorSetStatusMessage(const char *fmt, ...) {
+
+void editorSetStatusMessage(const char *fmt, ...)
+ {
   va_list ap;  //variable argument list
   va_start(ap, fmt);
   vsnprintf(E.statusmsg, sizeof(E.statusmsg), fmt, ap); 
@@ -559,7 +573,7 @@ int main(int argc, char *argv[]) {
     editorOpen(argv[1]);
   }
 
-  editorSetStatusMessage("HELP: Ctrl-Q = quit");
+  editorSetStatusMessage("HELP: Ctrl-S = save | Ctrl-Q = quit");
 
   while (1) {
     editorRefreshScreen();
