@@ -226,6 +226,7 @@ void editorAppendRow(char *s, size_t len) {
   editorUpdateRow(&E.row[at]);
   
   E.numrows++;
+  E.dirty++;
 }
 
 void editorRowInsertChar(erow *row, int at, int c) {
@@ -235,6 +236,7 @@ void editorRowInsertChar(erow *row, int at, int c) {
   row->size++;
   row->chars[at] = c;
   editorUpdateRow(row);
+  E.dirty++;
 }
 
 /*** editor operations ***/
@@ -284,6 +286,7 @@ void editorOpen(char *filename) {
 
   free(line);
   fclose(fp);
+  E.dirty = 0;
 }
 
 void editorSave() {
@@ -296,6 +299,7 @@ void editorSave() {
       if (write(fd, buf, len) == len) {
         close(fd);
         free(buf);
+        E.dirty = 0;
         editorSetStatusMessage("%d bytes written to disk", len);
         return;
       }
