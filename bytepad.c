@@ -4,7 +4,7 @@
 #define _DEFAULT_SOURCE
 #define _BSD_SOURCE
 #define _GNU_SOURCE
-#define KILO_QUIT_TIMES 3
+#define BYTEPAD_QUIT_TIMES 3
 
 #include <ctype.h>
 #include <errno.h>
@@ -68,6 +68,8 @@ struct editorConfig E;
 
 /*** prototypes ***/
 void editorSetStatusMessage(const char *fmt, ...);
+void editorRefreshScreen();
+char *editorPrompt(char *prompt);
 
 /*** terminal ***/
 
@@ -354,7 +356,13 @@ void editorOpen(char *filename) {
 }
 
 void editorSave() {
-  if (E.filename == NULL) return;
+  if (E.filename == NULL) {
+    E.filename = editorPrompt("Save as: %s (ESC to cancel)");
+    if (E.filename == NULL) {
+      editorSetStatusMessage("Save aborted");
+      return;
+    }
+  }
   int len;
   char *buf = editorRowsToString(&len);
   int fd = open(E.filename, O_RDWR | O_CREAT, 0644);
@@ -513,6 +521,38 @@ void editorSetStatusMessage(const char *fmt, ...)
 }
 
 /*** input ***/
+char *editorPrompt(char *prompt) {
+  size_t bufsize = 128;
+  char *buf = malloc(bufsize);
+  size_t buflen = 0;
+  buf[0] = '\0';
+  while (1) {
+    editorSetStatusMessage(prompt, buf);
+    editorRefreshScreen();
+    int c = editorReadKey();
+
+    if (c == DEL_KEY || c == CTRL_KEY('h') || c == BACKSPACE) {
+      if (buflen != 0) buf[--buflen] = '\0';
+    } else if (c == '\x1b') {
+      editorSetStatusMessage("");
+      free(buf);
+      return NULL;
+    } else if (c == '\r') {
+      if (buflen != 0) {
+        editorSetStatusMessage("");
+        return buf;
+      }
+    } else if (!iscntrl(c) && c < 128) {
+      if (buflen == bufsize - 1) {
+        bufsize *= 2;
+        buf = realloc(buf, bufsize);
+      }
+      buf[buflen++] = c;
+      buf[buflen] = '\0';
+    }
+  }
+}
+
 void editorMoveCursor(int key) {
   erow *row = (E.cy >= E.numrows) ? NULL : &E.row[E.cy];  //ternary operator checks if cursor is on an actual row or not (before we allow it to move right)
   switch (key) {
@@ -555,7 +595,7 @@ void editorMoveCursor(int key) {
 
 
 void editorProcessKeypress() {
-  static int quit_times = KILO_QUIT_TIMES;
+  static int quit_times = BYTEPAD_QUIT_TIMES;
 
   int c = editorReadKey();
   switch (c) {
@@ -625,7 +665,7 @@ void editorProcessKeypress() {
       break;
   }
 
-  quit_times = KILO_QUIT_TIMES;  //if user presses any key, reset the quit times
+  quit_times = BYTEPAD_QUIT_TIMES;  //if user presses any key, reset the quit times
 }
 
 /*** init ***/
