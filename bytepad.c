@@ -197,7 +197,7 @@ int editorRowRxToCx(erow *row, int rx) {
   int cx;
   for (cx = 0; cx < row->size; cx++) {
     if (row->chars[cx] == '\t')
-      cur_rx += (KILO_TAB_STOP - 1) - (cur_rx % KILO_TAB_STOP);
+      cur_rx += (BYTEPAD_TAB_STOP - 1) - (cur_rx % BYTEPAD_TAB_STOP);
     cur_rx++;
     if (cur_rx > rx) return cx;
   }
@@ -404,7 +404,7 @@ void editorFind() {
     char *match = strstr(row->render, query);
     if (match) {
       E.cy = i;
-      E.cx = match - row->render;
+      E.cx = editorRowRxToCx(row, match - row->render);
       E.rowoff = E.numrows;
       break;
     }
@@ -655,6 +655,10 @@ void editorProcessKeypress() {
     case END_KEY:
     if (E.cy < E.numrows)
         E.cx = E.row[E.cy].size;
+      break;
+
+    case CTRL_KEY('f'):
+      editorFind();
       break;
 
     case BACKSPACE:
