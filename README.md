@@ -9,7 +9,7 @@ Bytepad is a lightweight, terminal-based text editor written in C, built from sc
 
 
 ## Inspiration
-This project follows the step-by-step approach of the Kilo text editor tutorial (like the one at viewsourcecode.org/snaptoken/kilo/), inspired by antirez's [original work](github.com/antirez/kilo). It's a playground for learning terminal I/O, C programming, and the beauty of simplicity.
+This project follows the step-by-step approach of the Kilo text editor tutorial (like the one at viewsourcecode.org/snaptoken/kilo/), inspired by antirez's [original work](https://github.com/antirez/kilo). It's a playground for learning terminal I/O, C programming, and the beauty of simplicity.
 
 
 ## Build and Run
