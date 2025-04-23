@@ -1,4 +1,5 @@
 //this is a single line comment starts from start of line
+//control chars are: \n newline, \r carriage return, \t tab, "\b" backspace
 /*** includes ***/
 
 
@@ -719,7 +720,17 @@ void editorDrawRows(struct abuf *ab) {
       int j;
 
       for (j = 0; j < len; j++) {
-        if (hl[j] == HL_NORMAL) {
+        if (iscntrl(c[j])) {
+          char sym = (c[j] <= 26) ? '@' + c[j] : '?';
+          abAppend(ab, "\x1b[7m", 4);
+          abAppend(ab, &sym, 1);
+          abAppend(ab, "\x1b[m", 3);
+          if (current_color != -1) {
+            char buf[16];
+            int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", current_color);
+            abAppend(ab, buf, clen);
+          }
+        } else if (hl[j] == HL_NORMAL) {
           if (current_color != -1) {
             abAppend(ab, "\x1b[39m", 5);
             current_color = -1;
@@ -730,7 +741,7 @@ void editorDrawRows(struct abuf *ab) {
           if (color != current_color) {  //to avoid redundant escape sequences
             current_color = color;
             char buf[16];
-            int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);  //write esc seq before appending the character
+            int clen = snprintf(buf, sizeof(buf), "\x1b[%dm", color);  //write  esc seq before appending the character
             abAppend(ab, buf, clen);
           }
           abAppend(ab, &c[j], 1);
